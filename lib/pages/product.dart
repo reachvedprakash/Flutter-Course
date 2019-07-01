@@ -10,28 +10,25 @@ class ProductPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('EasyList'),
+        title: Text(title),
       ),
-      body: Center(
-        child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Image.asset(imageUrl),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: Text(title),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Image.asset(imageUrl),
+          Container(
+            padding: EdgeInsets.all(10.0),
+            child: Text(title),
+          ),
+          Container(
+            padding: EdgeInsets.all(10.0),
+            child: RaisedButton(
+              color: Theme.of(context).accentColor,
+              child: Text('BACK'),
+              onPressed: () => Navigator.pop(context),
             ),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: RaisedButton(
-                color: Theme.of(context).accentColor,
-                child: Text('BACK'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
