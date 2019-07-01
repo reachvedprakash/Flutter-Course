@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProductControl extends StatelessWidget {
@@ -7,13 +6,13 @@ class ProductControl extends StatelessWidget {
   ProductControl(this.addProduct);
 
   @override
-  Widget build(BuildContext context) {
-    return RaisedButton(
-      color: Theme.of(context).primaryColor,
-      child: Text('Add Product'),
-      onPressed: () {
-        addProduct('sweets');
-      },
-    );
-  }
+    Widget build(BuildContext context) {
+      return RaisedButton(
+            color: Theme.of(context).primaryColor,
+            onPressed: () {
+              addProduct('Sweets');
+            },
+            child: Text('Add Product'),
+          );
+    }
 }
