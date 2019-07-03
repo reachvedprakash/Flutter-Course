@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
@@ -10,18 +11,23 @@ mixin ConnectedProductsModel on Model {
   List<Product> _products = [];
   int _selProductIndex;
   User _authenticatedUser;
+  bool _isLoading = false;
 
-  void addProduct(
+  Future<Null> addProduct(
       String title, String description, String image, double price) {
+    _isLoading = true;
+    notifyListeners();
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
       'image':
           'https://cdn.pixabay.com/photo/2015/10/02/12/00/chocolate-968457_960_720.jpg',
-      'price': price
+      'price': price,
+      'userEmail': _authenticatedUser.email,
+      'userId': _authenticatedUser.id
     };
-    http
-        .post('https://flutter-project2.firebaseio.com/products.json',
+    return http
+        .post('https://flutter-products.firebaseio.com/products.json',
             body: json.encode(productData))
         .then((http.Response response) {
       final Map<String, dynamic> responseData = json.decode(response.body);
@@ -34,6 +40,7 @@ mixin ConnectedProductsModel on Model {
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id);
       _products.add(newProduct);
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -86,6 +93,36 @@ mixin ProductsModel on ConnectedProductsModel {
     notifyListeners();
   }
 
+  void fetchProducts() {
+    _isLoading = true;
+    notifyListeners();
+    http
+        .get('https://flutter-products.firebaseio.com/products.json')
+        .then((http.Response response) {
+      final List<Product> fetchedProductList = [];
+      final Map<String, dynamic> productListData = json.decode(response.body);
+      if (productListData == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      productListData.forEach((String productId, dynamic productData) {
+        final Product product = Product(
+            id: productId,
+            title: productData['title'],
+            description: productData['description'],
+            image: productData['image'],
+            price: productData['price'],
+            userEmail: productData['userEmail'],
+            userId: productData['userId']);
+        fetchedProductList.add(product);
+      });
+      _products = fetchedProductList;
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
   void toggleProductFavoriteStatus() {
     final bool isCurrentlyFavorite = selectedProduct.isFavorite;
     final bool newFavoriteStatus = !isCurrentlyFavorite;
@@ -116,5 +153,11 @@ mixin UserModel on ConnectedProductsModel {
   void login(String email, String password) {
     _authenticatedUser =
         User(id: 'fdalsdfasf', email: email, password: password);
+  }
+}
+
+mixin UtilityModel on ConnectedProductsModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }
